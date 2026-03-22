@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中国主要社媒平台月活用户变迁 2018–2025</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a0a;
+    color: #e8d5a3;
+    font-family: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* 背景网格 */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(212,175,55,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(212,175,55,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* 光晕效果 */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -30%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80vw;
+    height: 60vh;
+    background: radial-gradient(ellipse, rgba(212,175,55,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #app {
+    position: relative;
+    z-index: 1;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 顶部标题区 */
+  .header {
+    padding: 22px 48px 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .title-block {}
+
+  .title-main {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, #d4af37 0%, #f5e6a3 50%, #c8942a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    line-height: 1.2;
+  }
+
+  .title-sub {
+    font-size: 12px;
+    color: rgba(212,175,55,0.5);
+    letter-spacing: 3px;
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+
+  .data-source {
+    font-size: 11px;
+    color: rgba(212,175,55,0.3);
+    text-align: right;
+    line-height: 1.8;
+  }
+
+  /* 年份大字 */
+  .year-display {
+    position: absolute;
+    right: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 120px;
+    font-weight: 900;
+    color: rgba(212,175,55,0.07);
+    letter-spacing: -4px;
+    pointer-events: none;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    transition: opacity 0.3s;
+  }
+
+  /* 图表容器 */
+  .chart-area {
+    flex: 1;
+    padding: 16px 48px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 0;
+    position: relative;
+  }
+
+  .chart-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  /* 单条柱 */
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    height: 52px;
+    position: relative;
+  }
+
+  .platform-label {
+    width: 68px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #d4af37;
+    justify-content: flex-end;
+    padding-right: 14px;
+    letter-spacing: 0.5px;
+  }
+
+  .platform-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 44px;
+    position: relative;
+    background: rgba(255,255,255,0.025);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: flex;
+    align-items: center;
+    min-width: 4px;
+  }
+
+  /* 柱内发光效果 */
+  .bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 100%);
+    border-radius: 4px 4px 0 0;
+  }
+
+  /* 条纹 */
+  .bar-fill::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 20px,
+      rgba(255,255,255,0.03) 20px,
+      rgba(255,255,255,0.03) 21px
+    );
+  }
+
+  .bar-value {
+    position: absolute;
+    right: -5px;
+    top: 50%;
+    transform: translate(100%, -50%);
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    padding-left: 8px;
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* rank badge */
+  .rank-badge {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    flex-shrink: 0;
+    margin-right: 12px;
+    border: 1px solid rgba(212,175,55,0.4);
+    color: #d4af37;
+    transition: all 0.8s;
+  }
+
+  .rank-badge.rank-1 {
+    background: linear-gradient(135deg, #d4af37, #f5e6a3);
+    color: #0a0a0a;
+    border: none;
+    box-shadow: 0 0 12px rgba(212,175,55,0.6);
+  }
+
+  .rank-badge.rank-2 {
+    background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+    color: #0a0a0a;
+    border: none;
+  }
+
+  .rank-badge.rank-3 {
+    background: linear-gradient(135deg, #cd7f32, #e8a855);
+    color: #0a0a0a;
+    border: none;
+  }
+
+  /* 右侧数值标签区域 */
+  .value-area {
+    width: 100px;
+    flex-shrink: 0;
+    padding-left: 8px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* 底部时间轴 */
+  .timeline-section {
+    padding: 12px 48px 18px;
+    flex-shrink: 0;
+  }
+
+  .timeline-track {
+    position: relative;
+    height: 6px;
+    background: rgba(212,175,55,0.12);
+    border-radius: 3px;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+
+  .timeline-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #8B6914, #d4af37, #f5e6a3);
+    border-radius: 3px;
+    transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+  }
+
+  .timeline-progress::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    background: #f5e6a3;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(212,175,55,0.8), 0 0 20px rgba(212,175,55,0.4);
+  }
+
+  .timeline-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: rgba(212,175,55,0.45);
+    letter-spacing: 0.5px;
+  }
+
+  .timeline-label {
+    cursor: pointer;
+    transition: color 0.3s;
+    padding: 2px 4px;
+    border-radius: 2px;
+  }
+
+  .timeline-label:hover { color: #d4af37; }
+
+  .timeline-label.active {
+    color: #f5e6a3;
+    font-weight: 700;
+    text-shadow: 0 0 8px rgba(212,175,55,0.6);
+  }
+
+  /* 控制按钮 */
+  .controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 10px;
+  }
+
+  .btn {
+    background: rgba(212,175,55,0.1);
+    border: 1px solid rgba(212,175,55,0.3);
+    color: #d4af37;
+    padding: 7px 22px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.25s;
+    letter-spacing: 1px;
+    font-family: inherit;
+  }
+
+  .btn:hover {
+    background: rgba(212,175,55,0.2);
+    border-color: rgba(212,175,55,0.6);
+    box-shadow: 0 0 12px rgba(212,175,55,0.25);
+  }
+
+  .btn.active {
+    background: linear-gradient(135deg, #8B6914, #d4af37);
+    color: #0a0a0a;
+    font-weight: 700;
+    border-color: #d4af37;
+    box-shadow: 0 0 16px rgba(212,175,55,0.4);
+  }
+
+  .speed-label {
+    font-size: 11px;
+    color: rgba(212,175,55,0.4);
+    letter-spacing: 1px;
+  }
+
+  /* 图例 */
+  .legend {
+    display: flex;
+    gap: 20px;
+    justify-content: flex-end;
+    padding: 0 0 6px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: rgba(212,175,55,0.5);
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+
+  /* 装饰线 */
+  .deco-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(212,175,55,0.2), transparent);
+    margin: 6px 0;
+  }
+
+  /* 分隔标尺 */
+  .axis-ticks {
+    position: absolute;
+    left: 68px;
+    right: 122px;
+    bottom: 0;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+
+  .axis-tick-val {
+    font-size: 9px;
+    color: rgba(212,175,55,0.2);
+    transform: translateX(-50%);
+  }
+
+  /* 动态粒子 */
+  .particles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: rgba(212,175,55,0.3);
+    border-radius: 50%;
+    animation: float linear infinite;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 0.5; }
+    100% { transform: translateY(-20px) translateX(30px); opacity: 0; }
+  }
+
+  /* 数字滚动效果 */
+  @keyframes countUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .value-animate {
+    animation: countUp 0.4s ease-out;
+  }
+
+  /* 柱子加载动画 */
+  @keyframes barGlow {
+    0%, 100% { box-shadow: inset 0 0 20px rgba(255,255,255,0.03); }
+    50% { box-shadow: inset 0 0 30px rgba(255,255,255,0.06); }
+  }
+
+  .bar-fill {
+    animation: barGlow 3s ease-in-out infinite;
+  }
+
+  /* 注释说明 */
+  .footnote {
+    position: fixed;
+    bottom: 12px;
+    left: 48px;
+    font-size: 10px;
+    color: rgba(212,175,55,0.2);
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+
+<div id="app">
+  <div class="header">
+    <div class="title-block">
+      <div class="title-main">中国主要社媒平台月活用户变迁</div>
+      <div class="title-sub">Monthly Active Users · 2018 — 2025 · 单位：亿人</div>
+    </div>
+    <div class="data-source">
+      数据来源：各平台官方公告 / QuestMobile<br>
+      艾瑞咨询 / 公司年报 / 行业研报
+    </div>
+  </div>
+
+  <div class="deco-line" style="margin: 14px 48px 0;"></div>
+
+  <div class="year-display" id="yearDisplay">2018</div>
+
+  <div class="chart-area">
+    <div class="legend" id="legend"></div>
+    <div class="chart-inner" id="chartInner"></div>
+  </div>
+
+  <div class="timeline-section">
+    <div class="deco-line" style="margin-bottom: 14px;"></div>
+    <div class="timeline-track" id="timelineTrack">
+      <div class="timeline-progress" id="timelineProgress"></div>
+    </div>
+    <div class="timeline-labels" id="timelineLabels"></div>
+    <div class="controls">
+      <span class="speed-label">速度</span>
+      <button class="btn" id="btnSlow" onclick="setSpeed(1500)">慢</button>
+      <button class="btn active" id="btnNormal" onclick="setSpeed(1000)">正常</button>
+      <button class="btn" id="btnFast" onclick="setSpeed(500)">快</button>
+      <div style="width:1px; height:20px; background: rgba(212,175,55,0.2); margin: 0 4px;"></div>
+      <button class="btn" id="playBtn" onclick="togglePlay()">⏸ 暂停</button>
+      <button class="btn" onclick="restart()">↺ 重播</button>
+    </div>
+  </div>
+</div>
+
+<div class="footnote">* 月活跃用户数（MAU）数据综合自官方报告及第三方机构，部分数据为估算值</div>
+
+<script>
+// ============================================================
+// 数据层：2018-2025 各平台月活（单位：亿）
+// 数据来源：官方公告、QuestMobile、艾瑞、CNNIC等研究报告
+// ============================================================
+const PLATFORMS = [
+  {
+    id: 'douyin',
+    name: '抖音',
+    icon: '🎵',
+    color: '#FF6B9D',
+    gradient: ['#FF3C6B','#FF8FAB'],
+    data: {
+      2018: 1.5,
+      2019: 3.2,
+      2020: 5.6,
+      2021: 6.8,
+      2022: 7.1,
+      2023: 7.5,
+      2024: 7.9,
+      2025: 10.0,
+    }
+  },
+  {
+    id: 'kuaishou',
+    name: '快手',
+    icon: '⚡',
+    color: '#FF7A2F',
+    gradient: ['#FF5500','#FF9A5C'],
+    data: {
+      2018: 1.6,
+      2019: 2.5,
+      2020: 4.11,
+      2021: 5.78,
+      2022: 6.13,
+      2023: 6.87,
+      2024: 7.14,
+      2025: 5.73,
+    }
+  },
+  {
+    id: 'bilibili',
+    name: 'B站',
+    icon: '📺',
+    color: '#00B5E5',
+    gradient: ['#0090C5','#23D0F5'],
+    data: {
+      2018: 0.93,
+      2019: 1.28,
+      2020: 2.02,
+      2021: 2.72,
+      2022: 3.26,
+      2023: 3.41,
+      2024: 3.36,
+      2025: 3.45,
+    }
+  },
+  {
+    id: 'xiaohongshu',
+    name: '小红书',
+    icon: '📖',
+    color: '#FF4757',
+    gradient: ['#D4002E','#FF5E6C'],
+    data: {
+      2018: 0.5,
+      2019: 0.85,
+      2020: 1.0,
+      2021: 1.5,
+      2022: 2.0,
+      2023: 2.6,
+      2024: 3.2,
+      2025: 3.5,
+    }
+  },
+  {
+    id: 'shipinhao',
+    name: '视频号',
+    icon: '📱',
+    color: '#07C160',
+    gradient: ['#058B45','#09E870'],
+    data: {
+      2018: 0,
+      2019: 0,
+      2020: 2.0,
+      2021: 4.5,
+      2022: 5.0,
+      2023: 5.5,
+      2024: 8.0,
+      2025: 8.5,
+    }
+  },
+  {
+    id: 'weibo',
+    name: '微博',
+    icon: '🌐',
+    color: '#FF8200',
+    gradient: ['#E56000','#FFA233'],
+    data: {
+      2018: 4.46,
+      2019: 4.97,
+      2020: 5.21,
+      2021: 5.73,
+      2022: 5.84,
+      2023: 5.98,
+      2024: 5.93,
+      2025: 6.0,
+    }
+  },
+];
+
+const YEARS = [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025];
+
+let currentYearIndex = 0;
+let isPlaying = true;
+let intervalId = null;
+let speed = 1000;
+
+// ============================================================
+// 粒子背景
+// ============================================================
+function createParticles() {
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDuration = (8 + Math.random() * 12) + 's';
+    p.style.animationDelay = (-Math.random() * 15) + 's';
+    p.style.opacity = (0.1 + Math.random() * 0.3).toString();
+    p.style.width = (1 + Math.random() * 3) + 'px';
+    p.style.height = p.style.width;
+    container.appendChild(p);
+  }
+}
+
+// ============================================================
+// 初始化图表结构
+// ============================================================
+function initChart() {
+  const chartInner = document.getElementById('chartInner');
+  const legend = document.getElementById('legend');
+
+  // 图例
+  PLATFORMS.forEach(p => {
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.innerHTML = `<div class="legend-dot" style="background:${p.color};"></div><span>${p.name}</span>`;
+    legend.appendChild(item);
+  });
+
+  // 柱状图行
+  PLATFORMS.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.id = 'row-' + p.id;
+    row.innerHTML = `
+      <div class="platform-label">
+        <div class="platform-icon" style="background: linear-gradient(135deg, ${p.gradient[0]}, ${p.gradient[1]});">${p.icon}</div>
+        <span>${p.name}</span>
+      </div>
+      <div class="rank-badge rank-0" id="rank-${p.id}">—</div>
+      <div class="bar-track" id="track-${p.id}">
+        <div class="bar-fill" id="bar-${p.id}" style="
+          width: 0%;
+          background: linear-gradient(90deg, ${p.gradient[0]}, ${p.gradient[1]});
+          box-shadow: 0 0 16px ${p.color}66;
+        "></div>
+      </div>
+      <div class="value-area">
+        <span class="bar-value" id="val-${p.id}" style="color:${p.color};">0亿</span>
+      </div>
+    `;
+    chartInner.appendChild(row);
+  });
+
+  // 时间轴标签
+  const labelsEl = document.getElementById('timelineLabels');
+  YEARS.forEach((y, i) => {
+    const span = document.createElement('span');
+    span.className = 'timeline-label' + (i === 0 ? ' active' : '');
+    span.id = 'tlabel-' + y;
+    span.textContent = y;
+    span.onclick = () => jumpToYear(i);
+    labelsEl.appendChild(span);
+  });
+
+  // 时间轴点击
+  document.getElementById('timelineTrack').addEventListener('click', (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const ratio = (e.clientX - rect.left) / rect.width;
+    const idx = Math.round(ratio * (YEARS.length - 1));
+    jumpToYear(Math.max(0, Math.min(YEARS.length - 1, idx)));
+  });
+}
+
+// ============================================================
+// 渲染指定年份
+// ============================================================
+function renderYear(yearIndex) {
+  const year = YEARS[yearIndex];
+
+  // 更新年份大字
+  document.getElementById('yearDisplay').textContent = year;
+
+  // 当年各平台数据
+  const yearData = PLATFORMS.map(p => ({
+    ...p,
+    val: p.data[year] || 0
+  })).sort((a, b) => b.val - a.val);
+
+  const maxVal = Math.max(...yearData.map(d => d.val), 1);
+
+  // 更新柱子
+  PLATFORMS.forEach(p => {
+    const val = p.data[year] || 0;
+    const pct = (val / maxVal) * 100;
+    const barEl = document.getElementById('bar-' + p.id);
+    const valEl = document.getElementById('val-' + p.id);
+    const rankEl = document.getElementById('rank-' + p.id);
+
+    barEl.style.width = pct + '%';
+
+    // 数值显示
+    const rank = yearData.findIndex(d => d.id === p.id) + 1;
+    const displayVal = val === 0 ? '—' : (val >= 1 ? val.toFixed(1) + '亿' : (val * 10000 / 10000).toFixed(2) + '亿');
+    valEl.textContent = displayVal;
+    valEl.className = 'bar-value value-animate';
+    setTimeout(() => { valEl.className = 'bar-value'; }, 500);
+
+    // rank badge
+    rankEl.textContent = val === 0 ? '—' : rank;
+    rankEl.className = `rank-badge ${rank <= 3 && val > 0 ? 'rank-' + rank : ''}`;
+  });
+
+  // 更新时间轴
+  const prog = document.getElementById('timelineProgress');
+  prog.style.width = (yearIndex / (YEARS.length - 1) * 100) + '%';
+
+  // 高亮当前年份标签
+  YEARS.forEach((y, i) => {
+    const el = document.getElementById('tlabel-' + y);
+    el.className = 'timeline-label' + (i === yearIndex ? ' active' : '');
+  });
+
+  // 更新柱子排序（平滑过渡）
+  updateRowOrder(yearData);
+}
+
+// ============================================================
+// 更新行排序
+// ============================================================
+function updateRowOrder(sortedData) {
+  const container = document.getElementById('chartInner');
+  // 通过CSS order属性实现排序动画
+  sortedData.forEach((item, idx) => {
+    const row = document.getElementById('row-' + item.id);
+    if (row) {
+      row.style.order = idx;
+    }
+  });
+  container.style.display = 'flex';
+  container.style.flexDirection = 'column';
+}
+
+// ============================================================
+// 播放控制
+// ============================================================
+function startPlay() {
+  if (intervalId) clearInterval(intervalId);
+  intervalId = setInterval(() => {
+    currentYearIndex++;
+    if (currentYearIndex >= YEARS.length) {
+      currentYearIndex = YEARS.length - 1;
+      pausePlay();
+      document.getElementById('playBtn').textContent = '▶ 播放';
+      return;
+    }
+    renderYear(currentYearIndex);
+  }, speed);
+}
+
+function pausePlay() {
+  if (intervalId) { clearInterval(intervalId); intervalId = null; }
+  isPlaying = false;
+}
+
+function togglePlay() {
+  const btn = document.getElementById('playBtn');
+  if (isPlaying) {
+    pausePlay();
+    btn.textContent = '▶ 播放';
+  } else {
+    if (currentYearIndex >= YEARS.length - 1) {
+      currentYearIndex = 0;
+      renderYear(0);
+    }
+    isPlaying = true;
+    startPlay();
+    btn.textContent = '⏸ 暂停';
+  }
+}
+
+function restart() {
+  pausePlay();
+  currentYearIndex = 0;
+  renderYear(0);
+  isPlaying = true;
+  document.getElementById('playBtn').textContent = '⏸ 暂停';
+  startPlay();
+}
+
+function jumpToYear(idx) {
+  currentYearIndex = idx;
+  renderYear(idx);
+}
+
+function setSpeed(s) {
+  speed = s;
+  ['btnSlow','btnNormal','btnFast'].forEach(id => {
+    document.getElementById(id).classList.remove('active');
+  });
+  if (s === 1500) document.getElementById('btnSlow').classList.add('active');
+  else if (s === 1000) document.getElementById('btnNormal').classList.add('active');
+  else document.getElementById('btnFast').classList.add('active');
+
+  if (isPlaying) startPlay();
+}
+
+// ============================================================
+// 启动
+// ============================================================
+createParticles();
+initChart();
+renderYear(0);
+setTimeout(() => {
+  isPlaying = true;
+  startPlay();
+}, 800);
+</script>
+</body>
+</html>
