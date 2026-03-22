@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>全球 GDP 前十强国家排名</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0a0a0a;color:#e8d5a3;font-family:'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;overflow:hidden;user-select:none;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(212,175,55,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(212,175,55,.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;top:-30%;left:50%;transform:translateX(-50%);width:80vw;height:60vh;background:radial-gradient(ellipse,rgba(212,175,55,.06) 0%,transparent 70%);pointer-events:none;z-index:0;}
+#app{position:relative;z-index:1;width:100vw;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+.header{padding:18px 48px 0;display:flex;align-items:flex-end;justify-content:space-between;flex-shrink:0;height:80px;}
+.title-main{font-size:26px;font-weight:700;letter-spacing:2px;background:linear-gradient(135deg,#d4af37 0%,#f5e6a3 50%,#c8942a 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2;}
+.title-sub{font-size:12px;color:rgba(212,175,55,.5);letter-spacing:3px;margin-top:4px;}
+.data-source{font-size:11px;color:rgba(212,175,55,.3);text-align:right;line-height:1.8;}
+.year-display{position:fixed;right:48px;top:50%;transform:translateY(-50%);font-size:120px;font-weight:900;color:rgba(212,175,55,.07);letter-spacing:-4px;pointer-events:none;line-height:1;z-index:0;}
+.chart-area{flex:1;padding:12px 48px;display:flex;flex-direction:column;justify-content:flex-start;min-height:0;position:relative;overflow-y:auto;overflow-x:hidden;}
+.chart-inner{display:flex;flex-direction:column;gap:8px;width:100%;padding-bottom:8px;}
+/* 自定义滚动条 */
+.chart-area::-webkit-scrollbar{width:6px;}
+.chart-area::-webkit-scrollbar-track{background:rgba(212,175,55,.05);border-radius:3px;}
+.chart-area::-webkit-scrollbar-thumb{background:rgba(212,175,55,.3);border-radius:3px;}
+.chart-area::-webkit-scrollbar-thumb:hover{background:rgba(212,175,55,.5);}
+.bar-row{display:flex;align-items:center;height:44px;position:relative;}
+.platform-label{width:72px;flex-shrink:0;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#d4af37;justify-content:flex-end;padding-right:10px;letter-spacing:.3px;}
+.platform-icon{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;}
+.rank-badge{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;margin-right:10px;border:1px solid rgba(212,175,55,.4);color:#d4af37;transition:all .8s;}
+.rank-badge.rank-1{background:linear-gradient(135deg,#d4af37,#f5e6a3);color:#0a0a0a;border:none;box-shadow:0 0 12px rgba(212,175,55,.6);}
+.rank-badge.rank-2{background:linear-gradient(135deg,#c0c0c0,#e8e8e8);color:#0a0a0a;border:none;}
+.rank-badge.rank-3{background:linear-gradient(135deg,#cd7f32,#e8a855);color:#0a0a0a;border:none;}
+.bar-track{flex:1;height:36px;position:relative;background:rgba(255,255,255,.025);border-radius:4px;overflow:hidden;}
+.bar-fill{position:absolute;left:0;top:0;height:100%;border-radius:4px;transition:width .8s cubic-bezier(.25,.46,.45,.94);min-width:4px;}
+.bar-fill::after{content:'';position:absolute;top:0;left:0;right:0;height:40%;background:linear-gradient(180deg,rgba(255,255,255,.15) 0%,transparent 100%);border-radius:4px 4px 0 0;}
+.bar-fill::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 20px,rgba(255,255,255,.03) 20px,rgba(255,255,255,.03) 21px);}
+.value-area{width:100px;flex-shrink:0;padding-left:6px;display:flex;align-items:center;}
+.bar-value{font-size:12px;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums;transition:all .8s cubic-bezier(.25,.46,.45,.94);}
+@keyframes countUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.value-animate{animation:countUp .4s ease-out;}
+.deco-line{height:1px;background:linear-gradient(90deg,transparent,rgba(212,175,55,.2),transparent);margin:6px 0;}
+.timeline-section{padding:12px 48px 18px;flex-shrink:0;background:#0a0a0a;border-top:1px solid rgba(212,175,55,.1);}
+.timeline-track{position:relative;height:6px;background:rgba(212,175,55,.12);border-radius:3px;margin-bottom:10px;cursor:pointer;}
+.timeline-progress{height:100%;background:linear-gradient(90deg,#8B6914,#d4af37,#f5e6a3);border-radius:3px;transition:width .8s cubic-bezier(.25,.46,.45,.94);position:relative;}
+.timeline-progress::after{content:'';position:absolute;right:-1px;top:50%;transform:translateY(-50%);width:14px;height:14px;background:#f5e6a3;border-radius:50%;box-shadow:0 0 10px rgba(212,175,55,.8),0 0 20px rgba(212,175,55,.4);}
+.timeline-labels{display:flex;justify-content:space-between;font-size:11px;color:rgba(212,175,55,.45);}
+.timeline-label{cursor:pointer;transition:color .3s;padding:2px 4px;border-radius:2px;}
+.timeline-label:hover{color:#d4af37;}
+.timeline-label.active{color:#f5e6a3;font-weight:700;text-shadow:0 0 8px rgba(212,175,55,.6);}
+.controls{display:flex;justify-content:center;align-items:center;gap:16px;margin-top:10px;}
+.btn{background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.3);color:#d4af37;padding:7px 22px;border-radius:20px;font-size:13px;cursor:pointer;transition:all .25s;letter-spacing:1px;font-family:inherit;}
+.btn:hover{background:rgba(212,175,55,.2);border-color:rgba(212,175,55,.6);box-shadow:0 0 12px rgba(212,175,55,.25);}
+.btn.active{background:linear-gradient(135deg,#8B6914,#d4af37);color:#0a0a0a;font-weight:700;border-color:#d4af37;box-shadow:0 0 16px rgba(212,175,55,.4);}
+.speed-label{font-size:11px;color:rgba(212,175,55,.4);letter-spacing:1px;}
+.legend{display:flex;gap:16px;justify-content:flex-end;padding:0 0 6px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:rgba(212,175,55,.5);}
+.legend-dot{width:8px;height:8px;border-radius:2px;}
+.footnote{position:fixed;bottom:12px;left:48px;font-size:10px;color:rgba(212,175,55,.2);letter-spacing:.5px;pointer-events:none;}
+.particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.particle{position:absolute;width:2px;height:2px;background:rgba(212,175,55,.3);border-radius:50%;animation:float linear infinite;}
+@keyframes float{0%{transform:translateY(100vh) translateX(0);opacity:0;}10%{opacity:1;}90%{opacity:.5;}100%{transform:translateY(-20px) translateX(30px);opacity:0;}}
+/* 音乐控制 */
+.music-control{position:fixed;top:18px;right:48px;z-index:10;}
+.music-btn{background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.3);color:#d4af37;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .25s;font-size:14px;}
+.music-btn:hover{background:rgba(212,175,55,.2);border-color:rgba(212,175,55,.6);box-shadow:0 0 12px rgba(212,175,55,.25);}
+.music-btn.playing{animation:pulse 1.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(212,175,55,.4);}50%{box-shadow:0 0 0 8px rgba(212,175,55,0);}}
+</style>
+</head>
+<body>
+<div class="particles" id="particles"></div>
+
+
+<div id="app">
+  <div class="header">
+    <div class="title-block">
+      <div class="title-main">全球 GDP 前十强国家排名</div>
+      <div class="title-sub">Gross Domestic Product · 2000 — 2025 · 单位：万亿美元</div>
+    </div>
+    <div class="data-source">数据来源：世界银行 / IMF / 联合国统计</div>
+  </div>
+  <div class="deco-line" style="margin:14px 48px 0;"></div>
+  <div class="year-display" id="yearDisplay"></div>
+  <div class="chart-area">
+    <div class="legend" id="legend"></div>
+    <div class="chart-inner" id="chartInner"></div>
+  </div>
+  <div class="timeline-section">
+    <div class="deco-line" style="margin-bottom:14px;"></div>
+    <div class="timeline-track" id="timelineTrack">
+      <div class="timeline-progress" id="timelineProgress"></div>
+    </div>
+    <div class="timeline-labels" id="timelineLabels"></div>
+    <div class="controls">
+      <span class="speed-label">速度</span>
+      <button class="btn" id="btnSlow" onclick="setSpeed(1500)">慢</button>
+      <button class="btn active" id="btnNormal" onclick="setSpeed(1000)">正常</button>
+      <button class="btn" id="btnFast" onclick="setSpeed(500)">快</button>
+      <div style="width:1px;height:20px;background:rgba(212,175,55,.2);margin:0 4px;"></div>
+      <button class="btn" id="playBtn" onclick="togglePlay()">⏸ 暂停</button>
+      <button class="btn" onclick="restart()">↺ 重播</button>
+    </div>
+  </div>
+</div>
+<div class="footnote">* 按名义 GDP 计算，2024-2025 年为预测值</div>
+<script>
+const PLATFORMS = [{"id": "us", "name": "美国", "icon": "🇺🇸", "color": "#FF6B9D", "gradient": ["#FF3C6B", "#FF8FAB"], "data": {"2000": 10.3, "2005": 13.0, "2010": 15.0, "2015": 18.2, "2020": 20.9, "2021": 23.3, "2022": 25.5, "2023": 26.9, "2024": 28.0, "2025": 29.2}}, {"id": "china", "name": "中国", "icon": "🇨🇳", "color": "#FF7A2F", "gradient": ["#FF5500", "#FF9A5C"], "data": {"2000": 1.2, "2005": 2.3, "2010": 6.1, "2015": 11.1, "2020": 14.7, "2021": 17.7, "2022": 17.9, "2023": 17.5, "2024": 18.5, "2025": 19.8}}, {"id": "japan", "name": "日本", "icon": "🇯🇵", "color": "#00B5E5", "gradient": ["#0090C5", "#23D0F5"], "data": {"2000": 4.9, "2005": 4.8, "2010": 5.7, "2015": 4.4, "2020": 5.0, "2021": 4.9, "2022": 4.2, "2023": 4.2, "2024": 4.0, "2025": 3.9}}, {"id": "germany", "name": "德国", "icon": "🇩🇪", "color": "#FF4757", "gradient": ["#D4002E", "#FF5E6C"], "data": {"2000": 1.9, "2005": 2.8, "2010": 3.4, "2015": 3.4, "2020": 3.8, "2021": 4.2, "2022": 4.1, "2023": 4.5, "2024": 4.7, "2025": 4.9}}, {"id": "india", "name": "印度", "icon": "🇮🇳", "color": "#07C160", "gradient": ["#058B45", "#09E870"], "data": {"2000": 0.5, "2005": 0.8, "2010": 1.7, "2015": 2.1, "2020": 2.7, "2021": 3.1, "2022": 3.4, "2023": 3.7, "2024": 4.0, "2025": 4.4}}, {"id": "uk", "name": "英国", "icon": "🇬🇧", "color": "#FF8200", "gradient": ["#E56000", "#FFA233"], "data": {"2000": 1.6, "2005": 2.3, "2010": 2.4, "2015": 2.9, "2020": 2.7, "2021": 3.1, "2022": 3.1, "2023": 3.3, "2024": 3.5, "2025": 3.7}}, {"id": "france", "name": "法国", "icon": "🇫🇷", "color": "#A855F7", "gradient": ["#7E22CE", "#C084FC"], "data": {"2000": 1.4, "2005": 2.2, "2010": 2.6, "2015": 2.4, "2020": 2.6, "2021": 2.9, "2022": 2.8, "2023": 3.0, "2024": 3.2, "2025": 3.4}}, {"id": "italy", "name": "意大利", "icon": "🇮🇹", "color": "#F59E0B", "gradient": ["#B45309", "#FCD34D"], "data": {"2000": 1.1, "2005": 1.8, "2010": 2.1, "2015": 1.8, "2020": 1.9, "2021": 2.1, "2022": 2.0, "2023": 2.2, "2024": 2.3, "2025": 2.4}}, {"id": "brazil", "name": "巴西", "icon": "🇧🇷", "color": "#06B6D4", "gradient": ["#0E7490", "#67E8F9"], "data": {"2000": 0.7, "2005": 0.9, "2010": 2.2, "2015": 1.8, "2020": 1.4, "2021": 1.6, "2022": 1.9, "2023": 2.1, "2024": 2.2, "2025": 2.3}}, {"id": "canada", "name": "加拿大", "icon": "🇨🇦", "color": "#84CC16", "gradient": ["#4D7C0F", "#BEF264"], "data": {"2000": 0.7, "2005": 1.1, "2010": 1.6, "2015": 1.6, "2020": 1.6, "2021": 2.0, "2022": 2.1, "2023": 2.1, "2024": 2.2, "2025": 2.3}}];
+const YEARS = ["2000", "2005", "2010", "2015", "2020", "2021", "2022", "2023", "2024", "2025"];
+const UNIT = "万亿";
+let currentYearIndex = 0, isPlaying = true, intervalId = null, speed = 1000;
+
+function createParticles() {
+  const c = document.getElementById('particles');
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDuration = (8 + Math.random() * 12) + 's';
+    p.style.animationDelay = (-Math.random() * 15) + 's';
+    p.style.opacity = (0.1 + Math.random() * 0.3).toString();
+    p.style.width = (1 + Math.random() * 3) + 'px';
+    p.style.height = p.style.width;
+    c.appendChild(p);
+  }
+}
+
+function initChart() {
+  const legend = document.getElementById('legend');
+  const ci = document.getElementById('chartInner');
+  PLATFORMS.forEach(p => {
+    const li = document.createElement('div');
+    li.className = 'legend-item';
+    li.innerHTML = `<div class="legend-dot" style="background:${p.color};"></div><span>${p.name}</span>`;
+    legend.appendChild(li);
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.id = 'row-' + p.id;
+    row.innerHTML = `
+      <div class="platform-label">
+        <div class="platform-icon" style="background:linear-gradient(135deg,${p.gradient[0]},${p.gradient[1]})">${p.icon}</div>
+        <span>${p.name}</span>
+      </div>
+      <div class="rank-badge" id="rank-${p.id}">—</div>
+      <div class="bar-track" id="track-${p.id}">
+        <div class="bar-fill" id="bar-${p.id}" style="background:linear-gradient(90deg,${p.gradient[0]},${p.gradient[1]});box-shadow:0 0 16px ${p.color}66;width:0%"></div>
+      </div>
+      <div class="value-area">
+        <span class="bar-value" id="val-${p.id}" style="color:${p.color};">—</span>
+      </div>`;
+    ci.appendChild(row);
+  });
+  const tl = document.getElementById('timelineLabels');
+  YEARS.forEach((y, i) => {
+    const s = document.createElement('span');
+    s.className = 'timeline-label' + (i === 0 ? ' active' : '');
+    s.id = 'tlabel-' + y;
+    s.textContent = y;
+    s.onclick = () => jumpToYear(i);
+    tl.appendChild(s);
+  });
+  document.getElementById('timelineTrack').addEventListener('click', e => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const ratio = (e.clientX - r.left) / r.width;
+    jumpToYear(Math.max(0, Math.min(YEARS.length - 1, Math.round(ratio * (YEARS.length - 1)))));
+  });
+}
+
+function renderYear(idx) {
+  const year = YEARS[idx];
+  document.getElementById('yearDisplay').textContent = year;
+  const yd = PLATFORMS.map(p => ({...p, val: p.data[year] || 0})).sort((a, b) => b.val - a.val);
+  const maxVal = Math.max(...yd.map(d => d.val), 1);
+  PLATFORMS.forEach(p => {
+    const val = p.data[year] || 0;
+    document.getElementById('bar-' + p.id).style.width = (val / maxVal * 100) + '%';
+    const rank = yd.findIndex(d => d.id === p.id) + 1;
+    const vStr = val === 0 ? '—' : (val.toFixed(2).replace(/\.?0+$/, '') + UNIT);
+    const ve = document.getElementById('val-' + p.id);
+    ve.textContent = vStr;
+    ve.className = 'bar-value value-animate';
+    setTimeout(() => { ve.className = 'bar-value'; }, 500);
+    const re = document.getElementById('rank-' + p.id);
+    re.textContent = val === 0 ? '—' : rank;
+    re.className = 'rank-badge' + (val > 0 && rank <= 3 ? ' rank-' + rank : '');
+  });
+  document.getElementById('timelineProgress').style.width = (idx / (YEARS.length - 1) * 100) + '%';
+  YEARS.forEach((y, i) => {
+    document.getElementById('tlabel-' + y).className = 'timeline-label' + (i === idx ? ' active' : '');
+  });
+  const ci = document.getElementById('chartInner');
+  ci.style.display = 'flex';
+  ci.style.flexDirection = 'column';
+  yd.forEach((item, i) => {
+    const row = document.getElementById('row-' + item.id);
+    if (row) row.style.order = i;
+  });
+}
+
+function startPlay() {
+  if (intervalId) clearInterval(intervalId);
+  intervalId = setInterval(() => {
+    currentYearIndex++;
+    if (currentYearIndex >= YEARS.length) {
+      currentYearIndex = YEARS.length - 1;
+      pausePlay();
+      document.getElementById('playBtn').textContent = '▶ 播放';
+      return;
+    }
+    renderYear(currentYearIndex);
+  }, speed);
+}
+function pausePlay() { if (intervalId) { clearInterval(intervalId); intervalId = null; } isPlaying = false; }
+function togglePlay() {
+  const btn = document.getElementById('playBtn');
+  if (isPlaying) { pausePlay(); btn.textContent = '▶ 播放'; }
+  else {
+    if (currentYearIndex >= YEARS.length - 1) { currentYearIndex = 0; renderYear(0); }
+    isPlaying = true; startPlay(); btn.textContent = '⏸ 暂停';
+  }
+}
+function restart() {
+  pausePlay(); currentYearIndex = 0; renderYear(0);
+  isPlaying = true; document.getElementById('playBtn').textContent = '⏸ 暂停'; startPlay();
+}
+function jumpToYear(idx) { currentYearIndex = idx; renderYear(idx); }
+function setSpeed(s) {
+  speed = s;
+  ['btnSlow','btnNormal','btnFast'].forEach(id => document.getElementById(id).classList.remove('active'));
+  if (s === 1500) document.getElementById('btnSlow').classList.add('active');
+  else if (s === 1000) document.getElementById('btnNormal').classList.add('active');
+  else document.getElementById('btnFast').classList.add('active');
+  if (isPlaying) startPlay();
+}
+
+createParticles(); initChart(); renderYear(0);
+setTimeout(() => { isPlaying = true; startPlay(); }, 800);
+</script>
+</body>
+</html>
