@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2018-2025 年中国主要社媒平台月活用户变化</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0a0a0a;color:#e8d5a3;font-family:'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;overflow:hidden;user-select:none;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(212,175,55,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(212,175,55,.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;top:-30%;left:50%;transform:translateX(-50%);width:80vw;height:60vh;background:radial-gradient(ellipse,rgba(212,175,55,.06) 0%,transparent 70%);pointer-events:none;z-index:0;}
+#app{position:relative;z-index:1;width:100vw;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+.header{padding:18px 48px 0;display:flex;align-items:flex-end;justify-content:space-between;flex-shrink:0;height:80px;}
+.title-main{font-size:26px;font-weight:700;letter-spacing:2px;background:linear-gradient(135deg,#d4af37 0%,#f5e6a3 50%,#c8942a 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2;}
+.title-sub{font-size:12px;color:rgba(212,175,55,.5);letter-spacing:3px;margin-top:4px;}
+.data-source{font-size:11px;color:rgba(212,175,55,.3);text-align:right;line-height:1.8;}
+.chart-container{flex:1;padding:20px 48px;display:flex;flex-direction:column;min-height:0;position:relative;}
+.chart-area{flex:1;position:relative;background:rgba(255,255,255,.02);border:1px solid rgba(212,175,55,.15);border-radius:8px;overflow:hidden;}
+#chartCanvas{width:100%;height:100%;}
+.timeline-section{padding:12px 48px 18px;flex-shrink:0;background:#0a0a0a;border-top:1px solid rgba(212,175,55,.1);}
+.timeline-track{position:relative;height:6px;background:rgba(212,175,55,.12);border-radius:3px;margin-bottom:10px;cursor:pointer;}
+.timeline-progress{height:100%;background:linear-gradient(90deg,#8B6914,#d4af37,#f5e6a3);border-radius:3px;transition:width .3s ease;position:relative;}
+.timeline-progress::after{content:'';position:absolute;right:-1px;top:50%;transform:translateY(-50%);width:14px;height:14px;background:#f5e6a3;border-radius:50%;box-shadow:0 0 10px rgba(212,175,55,.8),0 0 20px rgba(212,175,55,.4);}
+.timeline-labels{display:flex;justify-content:space-between;font-size:11px;color:rgba(212,175,55,.45);}
+.timeline-label{cursor:pointer;transition:color .3s;padding:2px 4px;border-radius:2px;}
+.timeline-label:hover{color:#d4af37;}
+.timeline-label.active{color:#f5e6a3;font-weight:700;text-shadow:0 0 8px rgba(212,175,55,.6);}
+.controls{display:flex;justify-content:center;align-items:center;gap:16px;margin-top:10px;}
+.btn{background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.3);color:#d4af37;padding:7px 22px;border-radius:20px;font-size:13px;cursor:pointer;transition:all .25s;letter-spacing:1px;font-family:inherit;}
+.btn:hover{background:rgba(212,175,55,.2);border-color:rgba(212,175,55,.6);box-shadow:0 0 12px rgba(212,175,55,.25);}
+.btn.active{background:linear-gradient(135deg,#8B6914,#d4af37);color:#0a0a0a;font-weight:700;border-color:#d4af37;box-shadow:0 0 16px rgba(212,175,55,.4);}
+.speed-label{font-size:11px;color:rgba(212,175,55,.4);letter-spacing:1px;}
+.particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.particle{position:absolute;width:2px;height:2px;background:rgba(212,175,55,.3);border-radius:50%;animation:float linear infinite;}
+@keyframes float{0%{transform:translateY(100vh) translateX(0);opacity:0;}10%{opacity:1;}90%{opacity:.5;}100%{transform:translateY(-20px) translateX(30px);opacity:0;}}
+.music-control{position:fixed;top:18px;right:48px;z-index:10;}
+.music-btn{background:rgba(212,175,55,.1);border:1px solid rgba(212,175,55,.3);color:#d4af37;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .25s;font-size:14px;}
+.music-btn:hover{background:rgba(212,175,55,.2);border-color:rgba(212,175,55,.6);box-shadow:0 0 12px rgba(212,175,55,.25);}
+.music-btn.playing{animation:pulse 1.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(212,175,55,.4);}50%{box-shadow:0 0 0 8px rgba(212,175,55,0);}}
+.footnote{position:fixed;bottom:12px;left:48px;font-size:10px;color:rgba(212,175,55,.2);letter-spacing:.5px;pointer-events:none;}
+.leaderboard{position:absolute;left:20px;top:20px;background:rgba(10,10,10,.85);border:1px solid rgba(212,175,55,.2);border-radius:8px;padding:12px 16px;min-width:140px;backdrop-filter:blur(4px);}
+.leaderboard-title{font-size:11px;color:rgba(212,175,55,.5);margin-bottom:8px;letter-spacing:1px;}
+.leaderboard-item{display:flex;align-items:center;gap:8px;font-size:12px;margin:4px 0;transition:all .3s;}
+.leaderboard-rank{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;}
+.leaderboard-rank.rank-1{background:linear-gradient(135deg,#FFD700,#FFA500);color:#0a0a0a;}
+.leaderboard-rank.rank-2{background:linear-gradient(135deg,#C0C0C0,#E8E8E8);color:#0a0a0a;}
+.leaderboard-rank.rank-3{background:linear-gradient(135deg,#CD7F32,#E8A855);color:#0a0a0a;}
+.leaderboard-rank.rank-other{background:rgba(212,175,55,.15);color:rgba(212,175,55,.7);}
+.leaderboard-name{flex:1;color:rgba(232,213,163,.9);}
+.leaderboard-value{font-weight:700;font-variant-numeric:tabular-nums;}
+.year-big{position:absolute;right:30px;top:30px;font-size:80px;font-weight:900;color:rgba(212,175,55,.1);pointer-events:none;}
+</style>
+</head>
+<body>
+<div class="particles" id="particles"></div>
+<audio id="bgMusic" loop preload="auto"><source src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Tours/Enthusiast/Tours_-_01_-_Enthusiast.mp3" type="audio/mpeg"></audio>
+<div class="music-control"><button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="背景音乐">🎵</button></div>
+<div id="app">
+  <div class="header">
+    <div class="title-block">
+      <div class="title-main">2018-2025 年中国主要社媒平台月活用户变化</div>
+      <div class="title-sub">抖音、快手、B 站、小红书、视频号、微博 MAU 动态对比（亿）</div>
+    </div>
+    <div class="data-source">QuestMobile、公司财报及公开报告数据</div>
+  </div>
+  <div class="chart-container">
+    <div class="chart-area">
+      <canvas id="chartCanvas"></canvas>
+      <div class="leaderboard" id="leaderboard">
+        <div class="leaderboard-title">实时排名</div>
+        <div id="leaderboardContent"></div>
+      </div>
+      <div class="year-big" id="yearDisplay"></div>
+    </div>
+  </div>
+  <div class="timeline-section">
+    <div class="timeline-track" id="timelineTrack">
+      <div class="timeline-progress" id="timelineProgress"></div>
+    </div>
+    <div class="timeline-labels" id="timelineLabels"></div>
+    <div class="controls">
+      <span class="speed-label">速度</span>
+      <button class="btn" id="btnSlow" onclick="setSpeed(2000)">慢</button>
+      <button class="btn active" id="btnNormal" onclick="setSpeed(1000)">正常</button>
+      <button class="btn" id="btnFast" onclick="setSpeed(500)">快</button>
+      <div style="width:1px;height:20px;background:rgba(212,175,55,.2);margin:0 4px;"></div>
+      <button class="btn" id="playBtn" onclick="togglePlay()">⏸ 暂停</button>
+      <button class="btn" onclick="restart()">↺ 重播</button>
+    </div>
+  </div>
+</div>
+<div class="footnote">数据涵盖 2018-2025 年主要社交媒体平台月活跃用户数变化趋势</div>
+<script>
+const PLATFORMS = [{"id": "douyin", "name": "抖音", "icon": "🎵", "color": "#FF6B6B", "gradient": ["#FF3C6B", "#FF8FAB"], "data": {"2018": 1.5, "2019": 4.0, "2020": 6.0, "2021": 6.8, "2022": 7.5, "2023": 8.5, "2024": 9.5, "2025": 10.01}}, {"id": "kuaishou", "name": "快手", "icon": "📹", "color": "#FFA94D", "gradient": ["#FF5500", "#FF9A5C"], "data": {"2018": 1.0, "2019": 2.5, "2020": 4.8, "2021": 5.2, "2022": 5.6, "2023": 5.8, "2024": 5.95, "2025": 5.73}}, {"id": "xiaohongshu", "name": "小红书", "icon": "📕", "color": "#FF6B9D", "gradient": ["#0090C5", "#23D0F5"], "data": {"2018": 0.5, "2019": 1.0, "2020": 1.4, "2021": 1.8, "2022": 2.0, "2023": 2.2, "2024": 2.42, "2025": 2.42}}, {"id": "bilibili", "name": "B 站", "icon": "📺", "color": "#4D96FF", "gradient": ["#D4002E", "#FF5E6C"], "data": {"2018": 0.93, "2019": 1.17, "2020": 2.02, "2021": 2.67, "2022": 3.06, "2023": 3.26, "2024": 2.23, "2025": 2.23}}, {"id": "weibo", "name": "微博", "icon": "🔴", "color": "#E74C3C", "gradient": ["#058B45", "#09E870"], "data": {"2018": 4.46, "2019": 5.16, "2020": 5.5, "2021": 5.73, "2022": 5.86, "2023": 5.8, "2024": 4.91, "2025": 4.74}}, {"id": "channels", "name": "视频号", "icon": "🎬", "color": "#6BCB77", "gradient": ["#E56000", "#FFA233"], "data": {"2018": 0, "2019": 0, "2020": 0.5, "2021": 2.0, "2022": 4.0, "2023": 5.0, "2024": 6.0, "2025": 6.5}}];
+const YEARS = ["2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"];
+const UNIT = "亿月活用户";
+const Y_MAX = 11.511499999999998;
+const Y_MIN = 0;
+
+let currentYearIndex = 0;
+let isPlaying = true;
+let intervalId = null;
+let speed = 1000;
+let animationProgress = 0; // 0 到 1 之间，表示当前年份内的动画进度
+
+const canvas = document.getElementById('chartCanvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+}
+
+function createParticles() {
+  const c = document.getElementById('particles');
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDuration = (8 + Math.random() * 12) + 's';
+    p.style.animationDelay = (-Math.random() * 15) + 's';
+    p.style.opacity = (0.1 + Math.random() * 0.3).toString();
+    p.style.width = (1 + Math.random() * 3) + 'px';
+    p.style.height = p.style.width;
+    c.appendChild(p);
+  }
+}
+
+function initTimeline() {
+  const tl = document.getElementById('timelineLabels');
+  YEARS.forEach((y, i) => {
+    const s = document.createElement('span');
+    s.className = 'timeline-label' + (i === 0 ? ' active' : '');
+    s.id = 'tlabel-' + y;
+    s.textContent = y;
+    s.onclick = () => jumpToYear(i);
+    tl.appendChild(s);
+  });
+  
+  document.getElementById('timelineTrack').addEventListener('click', e => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const ratio = (e.clientX - r.left) / r.width;
+    jumpToYear(Math.max(0, Math.min(YEARS.length - 1, Math.round(ratio * (YEARS.length - 1)))));
+  });
+}
+
+function getCoordinates(yearIndex, value, padding) {
+  const width = canvas.width;
+  const height = canvas.height;
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+  
+  const x = padding.left + (yearIndex / (YEARS.length - 1)) * chartWidth;
+  const y = padding.top + chartHeight - ((value - Y_MIN) / (Y_MAX - Y_MIN)) * chartHeight;
+  return { x, y };
+}
+
+function interpolateValue(platform, yearIndex, progress) {
+  // 获取当前年份和下一个年份的值
+  const currentYear = YEARS[yearIndex];
+  const nextYear = YEARS[Math.min(yearIndex + 1, YEARS.length - 1)];
+  
+  const currentVal = platform.data[currentYear] || 0;
+  const nextVal = platform.data[nextYear] || currentVal;
+  
+  // 如果已经是最后一年，直接返回当前值
+  if (yearIndex >= YEARS.length - 1) return currentVal;
+  
+  // 线性插值
+  return currentVal + (nextVal - currentVal) * progress;
+}
+
+function interpolatePosition(platform, yearIndex, progress, padding) {
+  // 获取当前年份和下一个年份的值
+  const currentYear = YEARS[yearIndex];
+  const nextYear = YEARS[Math.min(yearIndex + 1, YEARS.length - 1)];
+  
+  const currentVal = platform.data[currentYear] || 0;
+  const nextVal = platform.data[nextYear] || currentVal;
+  
+  // 计算当前值（插值）
+  const currentInterpolatedVal = currentVal + (nextVal - currentVal) * progress;
+  
+  // 计算X坐标（在年份之间插值）
+  const width = canvas.width;
+  const chartWidth = width - padding.left - padding.right;
+  const currentX = padding.left + (yearIndex / (YEARS.length - 1)) * chartWidth;
+  const nextX = padding.left + ((yearIndex + 1) / (YEARS.length - 1)) * chartWidth;
+  const x = currentX + (nextX - currentX) * progress;
+  
+  // 计算Y坐标
+  const height = canvas.height;
+  const chartHeight = height - padding.top - padding.bottom;
+  const y = padding.top + chartHeight - ((currentInterpolatedVal - Y_MIN) / (Y_MAX - Y_MIN)) * chartHeight;
+  
+  return { x, y, val: currentInterpolatedVal };
+}
+
+function drawChart() {
+  const width = canvas.width;
+  const height = canvas.height;
+  const padding = { top: 40, right: 120, bottom: 50, left: 70 };
+  
+  ctx.clearRect(0, 0, width, height);
+  
+  // 绘制网格线
+  ctx.strokeStyle = 'rgba(212,175,55,0.08)';
+  ctx.lineWidth = 1;
+  const gridCount = 6;
+  for (let i = 0; i <= gridCount; i++) {
+    const y = padding.top + ((height - padding.top - padding.bottom) / gridCount) * i;
+    ctx.beginPath();
+    ctx.moveTo(padding.left, y);
+    ctx.lineTo(width - padding.right, y);
+    ctx.stroke();
+    
+    // Y轴标签
+    const value = Y_MAX - (Y_MAX - Y_MIN) * (i / gridCount);
+    ctx.fillStyle = 'rgba(212,175,55,0.4)';
+    ctx.font = '11px PingFang SC, Microsoft YaHei';
+    ctx.textAlign = 'right';
+    ctx.fillText(value.toFixed(0) + UNIT, padding.left - 10, y + 4);
+  }
+  
+  // 绘制X轴标签
+  ctx.textAlign = 'center';
+  YEARS.forEach((year, i) => {
+    const x = padding.left + (i / (YEARS.length - 1)) * (width - padding.left - padding.right);
+    ctx.fillStyle = i <= currentYearIndex ? 'rgba(212,175,55,0.7)' : 'rgba(212,175,55,0.2)';
+    ctx.fillText(year, x, height - padding.bottom + 20);
+  });
+  
+  // 计算当前显示进度（包括动画插值）
+  const displayProgress = currentYearIndex + animationProgress;
+  const maxYearIndex = Math.min(Math.ceil(displayProgress), YEARS.length - 1);
+  
+  // 计算每个平台的当前精确位置（平滑插值）
+  const platformData = PLATFORMS.map(p => {
+    // 收集所有历史点（已完成的年份）
+    const historyPoints = [];
+    for (let i = 0; i <= currentYearIndex && i < YEARS.length; i++) {
+      const val = p.data[YEARS[i]] || 0;
+      const coords = getCoordinates(i, val, padding);
+      historyPoints.push({ x: coords.x, y: coords.y, val, year: YEARS[i] });
+    }
+    
+    // 计算当前精确位置（在年份之间平滑移动）
+    const currentPos = interpolatePosition(p, currentYearIndex, animationProgress, padding);
+    
+    return { platform: p, historyPoints, currentPos };
+  });
+  
+  // 先绘制所有历史线条（到上一个已完成年份）
+  platformData.forEach(({ platform: p, historyPoints }) => {
+    if (historyPoints.length < 2) return;
+    
+    // 绘制发光效果（底层）
+    ctx.strokeStyle = p.color;
+    ctx.lineWidth = 8;
+    ctx.globalAlpha = 0.15;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(historyPoints[0].x, historyPoints[0].y);
+    for (let i = 1; i < historyPoints.length; i++) {
+      ctx.lineTo(historyPoints[i].x, historyPoints[i].y);
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    
+    // 绘制主线条
+    ctx.strokeStyle = p.color;
+    ctx.lineWidth = 3;
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.moveTo(historyPoints[0].x, historyPoints[0].y);
+    for (let i = 1; i < historyPoints.length; i++) {
+      ctx.lineTo(historyPoints[i].x, historyPoints[i].y);
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  });
+  
+  // 绘制当前正在延伸的线条（从最后一个历史点到当前位置）
+  platformData.forEach(({ platform: p, historyPoints, currentPos }) => {
+    if (historyPoints.length === 0) return;
+    
+    const lastHistoryPoint = historyPoints[historyPoints.length - 1];
+    
+    // 只有不在年份节点上时才绘制延伸线
+    if (animationProgress > 0 || currentYearIndex >= YEARS.length - 1) {
+      // 发光效果
+      ctx.strokeStyle = p.color;
+      ctx.lineWidth = 8;
+      ctx.globalAlpha = 0.15;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(lastHistoryPoint.x, lastHistoryPoint.y);
+      ctx.lineTo(currentPos.x, currentPos.y);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+      
+      // 主线条
+      ctx.strokeStyle = p.color;
+      ctx.lineWidth = 3;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.moveTo(lastHistoryPoint.x, lastHistoryPoint.y);
+      ctx.lineTo(currentPos.x, currentPos.y);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+    
+    // 绘制当前点（笔头）
+    // 光晕
+    ctx.fillStyle = p.color;
+    ctx.globalAlpha = 0.3;
+    ctx.beginPath();
+    ctx.arc(currentPos.x, currentPos.y, 12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    
+    // 点主体
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(currentPos.x, currentPos.y, 7, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // 内高光
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.beginPath();
+    ctx.arc(currentPos.x - 2, currentPos.y - 2, 3, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // 外圈
+    ctx.strokeStyle = '#0a0a0a';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(currentPos.x, currentPos.y, 7, 0, Math.PI * 2);
+    ctx.stroke();
+    
+    // 标签
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 12px PingFang SC, Microsoft YaHei';
+    ctx.textAlign = 'left';
+    ctx.shadowColor = 'rgba(0,0,0,0.8)';
+    ctx.shadowBlur = 4;
+    ctx.fillText(p.name, currentPos.x + 14, currentPos.y - 2);
+    ctx.shadowBlur = 0;
+    
+    // 数值
+    ctx.fillStyle = p.color;
+    ctx.font = 'bold 11px PingFang SC, Microsoft YaHei';
+    ctx.fillText(currentPos.val.toFixed(1) + UNIT, currentPos.x + 14, currentPos.y + 12);
+  });
+  
+  // 绘制当前时间线
+  if (currentYearIndex < YEARS.length - 1 || animationProgress > 0) {
+    const currentX = padding.left + (displayProgress / (YEARS.length - 1)) * (width - padding.left - padding.right);
+    ctx.strokeStyle = 'rgba(212,175,55,0.3)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.moveTo(currentX, padding.top);
+    ctx.lineTo(currentX, height - padding.bottom);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+function updateLeaderboard() {
+  const displayProgress = currentYearIndex + animationProgress;
+  
+  // 计算当前各平台的值
+  const currentData = PLATFORMS.map(p => {
+    const val = interpolateValue(p, currentYearIndex, animationProgress);
+    return { id: p.id, name: p.name, val, color: p.color };
+  }).sort((a, b) => b.val - a.val);
+  
+  const content = document.getElementById('leaderboardContent');
+  content.innerHTML = currentData.map((item, i) => {
+    const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
+    return `
+      <div class="leaderboard-item">
+        <div class="leaderboard-rank ${rankClass}">${i + 1}</div>
+        <div class="leaderboard-name">${item.name}</div>
+        <div class="leaderboard-value" style="color:${item.color}">${item.val.toFixed(1)}${UNIT}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function render() {
+  const year = YEARS[currentYearIndex];
+  document.getElementById('yearDisplay').textContent = year;
+  
+  drawChart();
+  updateLeaderboard();
+  
+  // 更新时间轴
+  const progress = (currentYearIndex + animationProgress) / (YEARS.length - 1);
+  document.getElementById('timelineProgress').style.width = (progress * 100) + '%';
+  
+  YEARS.forEach((y, i) => {
+    document.getElementById('tlabel-' + y).className = 'timeline-label' + (i === currentYearIndex ? ' active' : '');
+  });
+}
+
+function animate() {
+  if (!isPlaying) return;
+  
+  animationProgress += 0.05; // 每帧增加5%的进度
+  
+  if (animationProgress >= 1) {
+    animationProgress = 0;
+    currentYearIndex++;
+    
+    if (currentYearIndex >= YEARS.length - 1) {
+      currentYearIndex = YEARS.length - 1;
+      animationProgress = 0;
+      pausePlay();
+      document.getElementById('playBtn').textContent = '▶ 播放';
+      return;
+    }
+  }
+  
+  render();
+}
+
+function startPlay() {
+  if (intervalId) clearInterval(intervalId);
+  intervalId = setInterval(animate, speed / 20); // 将速度分成20帧
+}
+
+function pausePlay() { 
+  if (intervalId) { clearInterval(intervalId); intervalId = null; } 
+  isPlaying = false; 
+}
+
+function togglePlay() {
+  const btn = document.getElementById('playBtn');
+  if (isPlaying) { 
+    pausePlay(); 
+    btn.textContent = '▶ 播放'; 
+  }
+  else {
+    if (currentYearIndex >= YEARS.length - 1) { 
+      currentYearIndex = 0; 
+      animationProgress = 0;
+    }
+    isPlaying = true; 
+    startPlay(); 
+    btn.textContent = '⏸ 暂停';
+  }
+}
+
+function restart() {
+  pausePlay(); 
+  currentYearIndex = 0; 
+  animationProgress = 0;
+  render();
+  isPlaying = true; 
+  document.getElementById('playBtn').textContent = '⏸ 暂停'; 
+  startPlay();
+}
+
+function jumpToYear(idx) { 
+  currentYearIndex = idx; 
+  animationProgress = 0;
+  render(); 
+}
+
+function setSpeed(s) {
+  speed = s;
+  ['btnSlow','btnNormal','btnFast'].forEach(id => document.getElementById(id).classList.remove('active'));
+  if (s === 2000) document.getElementById('btnSlow').classList.add('active');
+  else if (s === 1000) document.getElementById('btnNormal').classList.add('active');
+  else document.getElementById('btnFast').classList.add('active');
+  if (isPlaying) startPlay();
+}
+
+
+// 背景音乐控制
+let isMusicPlaying = false;
+const musicBtn = document.getElementById('musicBtn');
+const bgMusic = document.getElementById('bgMusic');
+function toggleMusic() {
+  if (!bgMusic) return;
+  if (isMusicPlaying) {
+    bgMusic.pause();
+    musicBtn.classList.remove('playing');
+    musicBtn.textContent = '🔇';
+    isMusicPlaying = false;
+  } else {
+    bgMusic.play().then(() => {
+      musicBtn.classList.add('playing');
+      musicBtn.textContent = '🎵';
+      isMusicPlaying = true;
+    }).catch(e => {
+      console.log('音乐播放失败:', e);
+      musicBtn.textContent = '❌';
+    });
+  }
+}
+// 优化音乐播放：与播放按钮同步触发
+function initMusicOnPlay() {
+  if (!isMusicPlaying && bgMusic && bgMusic.paused) {
+    toggleMusic();
+  }
+}
+// 首次点击播放按钮时触发音乐
+const originalTogglePlay = togglePlay;
+togglePlay = function() {
+  initMusicOnPlay();
+  originalTogglePlay();
+};
+
+
+// 初始化
+resizeCanvas();
+window.addEventListener('resize', () => {
+  resizeCanvas();
+  render();
+});
+
+createParticles();
+initTimeline();
+render();
+
+setTimeout(() => { 
+  isPlaying = true; 
+  startPlay(); 
+}, 500);
+</script>
+</body>
+</html>
