@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>悟空版本表现分析 (4月17日-20日)</title>
+<style>
+:root { --bg:#0f1117; --card:#1a1d27; --border:#2a2d3a; --text:#e4e4e7; --dim:#a1a1aa; --green:#22c55e; --red:#ef4444; --yellow:#eab308; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; line-height:1.6; padding:24px; }
+.container { max-width:1100px; margin:0 auto; }
+h1 { font-size:26px; margin-bottom:6px; color:#fff; }
+.sub { color:var(--dim); margin-bottom:28px; font-size:13px; }
+h2 { font-size:18px; margin:28px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--border); color:#fff; }
+.card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:18px; margin-bottom:16px; overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:13px; white-space:nowrap; }
+th { background:#252836; color:var(--dim); font-weight:500; padding:9px 10px; text-align:left; border-bottom:1px solid var(--border); }
+td { padding:9px 10px; border-bottom:1px solid var(--border); }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:rgba(99,102,241,0.05); }
+.red { color:var(--red); font-weight:600; }
+.green { color:var(--green); font-weight:600; }
+.yellow { color:var(--yellow); font-weight:600; }
+.tag { display:inline-block; padding:3px 10px; border-radius:6px; font-size:12px; font-weight:500; margin:2px; }
+.tag-r { background:rgba(239,68,68,0.1); color:var(--red); border:1px solid rgba(239,68,68,0.3); }
+.tag-y { background:rgba(234,179,8,0.1); color:var(--yellow); border:1px solid rgba(234,179,8,0.3); }
+.tag-g { background:rgba(34,197,94,0.1); color:var(--green); border:1px solid rgba(34,197,94,0.3); }
+.rec { padding:12px 16px; border-radius:8px; margin:8px 0; font-size:13px; }
+.rec-r { background:rgba(239,68,68,0.08); border-left:3px solid var(--red); }
+.rec-y { background:rgba(234,179,8,0.08); border-left:3px solid var(--yellow); }
+.rec-g { background:rgba(34,197,94,0.08); border-left:3px solid var(--green); }
+.badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:600; }
+.b-r { background:rgba(239,68,68,0.15); color:var(--red); }
+.b-y { background:rgba(234,179,8,0.15); color:var(--yellow); }
+.b-g { background:rgba(34,197,94,0.15); color:var(--green); }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>悟空版本表现分析报告</h1>
+<p class="sub">4月17日-20日 &nbsp;|&nbsp; 282,894 条去重数据 &nbsp;|&nbsp; 2026-04-21</p>
+
+<h2>一、汇总分析</h2>
+<div class="card"><table id="t1">
+<thead><tr><th>版本</th><th>总量</th><th>参数错误量</th><th>参数错误率</th><th>主动选择技能路由成功率</th><th>系统路由率</th></tr></thead>
+<tbody></tbody>
+</table></div>
+<div class="card">
+<span class="tag tag-r">严重(&gt;1%)：0.9.25、0.9.26、0.9.32</span>
+<span class="tag tag-y">轻微(0.2-0.5%)：0.9.29、0.9.30、0.9.31</span>
+<span class="tag tag-g">健康(&lt;0.2%)：0.9.28系列</span>
+</div>
+
+<h2>二、主动选择技能路由成功率</h2>
+<div class="card"><table id="t2">
+<thead><tr><th>版本</th><th>选择次数</th><th>路由成功</th><th>成功率</th><th>04-17</th><th>04-18</th><th>04-19</th><th>04-20</th></tr></thead>
+<tbody></tbody>
+</table></div>
+
+<h2>三、系统路由率</h2>
+<div class="card"><table id="t3">
+<thead><tr><th>版本</th><th>04-17</th><th>04-18</th><th>04-19</th><th>04-20</th><th>4日平均</th></tr></thead>
+<tbody></tbody>
+</table></div>
+
+<h2>四、建议</h2>
+<div class="card">
+<div class="rec rec-r"><strong>紧急：</strong>排查 0.9.32-26041903 的 invalidParameter 根因，错误率 1.83% 已超过 0.9.26</div>
+<div class="rec rec-r"><strong>紧急：</strong>推动 0.9.26-26041203 用户升级，4天贡献 896 次错误（占总量 43.4%）</div>
+<div class="rec rec-y"><strong>监控：</strong>0.9.29-0.9.31 错误率 0.27-0.39%，需持续跟踪</div>
+</div>
+</div>
+
+<script>
+const DATA = {"version_rows": [{"version": "0.9.25-26041002", "total": 2177, "invalidParameter": 63, "error_rate": 2.89, "user_selected": 98, "user_success": 98, "success_rate": 100.0, "system_routed": 274, "auto_rate": 13.2, "daily_inv": [24, 25, 10, 4], "daily_total": [655, 565, 421, 536], "daily_sel_rates": [100.0, 100.0, 100.0, 100.0], "daily_auto_rates": [16.4, 10.3, 9.7, 15.2]}, {"version": "0.9.26-26041203", "total": 57953, "invalidParameter": 896, "error_rate": 1.55, "user_selected": 2564, "user_success": 2549, "success_rate": 99.4, "system_routed": 6584, "auto_rate": 11.9, "daily_inv": [515, 146, 96, 139], "daily_total": [32473, 8349, 5951, 11180], "daily_sel_rates": [99.5, 98.4, 100.0, 99.3], "daily_auto_rates": [12.4, 10.7, 9.9, 12.5]}, {"version": "0.9.28-26041403", "total": 8094, "invalidParameter": 3, "error_rate": 0.04, "user_selected": 496, "user_success": 493, "success_rate": 99.4, "system_routed": 1036, "auto_rate": 13.6, "daily_inv": [1, 0, 0, 2], "daily_total": [4348, 1267, 758, 1721], "daily_sel_rates": [99.1, 100.0, 100.0, 100.0], "daily_auto_rates": [13.7, 11.3, 13.0, 15.4]}, {"version": "0.9.28-26041404", "total": 1250, "invalidParameter": 0, "error_rate": 0.0, "user_selected": 80, "user_success": 80, "success_rate": 100.0, "system_routed": 167, "auto_rate": 14.3, "daily_inv": [0, 0, 0, 0], "daily_total": [640, 170, 118, 322], "daily_sel_rates": [100.0, 100.0, 100.0, 100.0], "daily_auto_rates": [14.7, 17.8, 14.2, 11.6]}, {"version": "0.9.29-26041506", "total": 14651, "invalidParameter": 57, "error_rate": 0.39, "user_selected": 926, "user_success": 917, "success_rate": 99.0, "system_routed": 1647, "auto_rate": 12.0, "daily_inv": [35, 13, 3, 6], "daily_total": [8264, 2414, 1397, 2576], "daily_sel_rates": [99.6, 97.9, 100.0, 96.6], "daily_auto_rates": [12.1, 11.2, 12.1, 12.4]}, {"version": "0.9.30-26041603", "total": 97259, "invalidParameter": 263, "error_rate": 0.27, "user_selected": 7248, "user_success": 7218, "success_rate": 99.6, "system_routed": 9309, "auto_rate": 10.3, "daily_inv": [38, 72, 55, 98], "daily_total": [19435, 20611, 19413, 37800], "daily_sel_rates": [99.6, 99.6, 99.2, 99.7], "daily_auto_rates": [12.8, 9.7, 8.5, 10.5]}, {"version": "0.9.31-26041701", "total": 25438, "invalidParameter": 71, "error_rate": 0.28, "user_selected": 2247, "user_success": 2239, "success_rate": 99.6, "system_routed": 2194, "auto_rate": 9.5, "daily_inv": [0, 24, 17, 30], "daily_total": [555, 8977, 9768, 6138], "daily_sel_rates": [100.0, 99.7, 99.9, 99.0], "daily_auto_rates": [12.4, 10.3, 8.9, 8.9]}, {"version": "0.9.32-26041903", "total": 15449, "invalidParameter": 283, "error_rate": 1.83, "user_selected": 1835, "user_success": 1833, "success_rate": 99.9, "system_routed": 1505, "auto_rate": 11.1, "daily_inv": [0, 0, 0, 283], "daily_total": [0, 0, 407, 15042], "daily_sel_rates": [null, null, 100.0, 99.9], "daily_auto_rates": [null, null, 9.5, 11.1]}]};
+
+const t1 = document.querySelector('#t1 tbody');
+[...DATA.version_rows].sort((a,b)=>b.error_rate-a.error_rate).forEach(v=>{
+  const c = v.error_rate>1?'red':v.error_rate>0.2?'yellow':'green';
+  const b = v.error_rate>1?'<span class="badge b-r">严重</span>':v.error_rate>0.2?'<span class="badge b-y">轻微</span>':'<span class="badge b-g">健康</span>';
+  t1.innerHTML+=`<tr><td><strong>${v.version}</strong> ${b}</td><td>${v.total.toLocaleString()}</td><td>${v.invalidParameter}</td><td class="${c}">${v.error_rate}%</td><td class="green">${v.success_rate}%</td><td>${v.auto_rate}%</td></tr>`;
+});
+
+const t2 = document.querySelector('#t2 tbody');
+[...DATA.version_rows].sort((a,b)=>b.success_rate-a.success_rate).forEach(v=>{
+  const ds = v.daily_sel_rates.map(r=>r!==null?r.toFixed(1)+'%':'-');
+  t2.innerHTML+=`<tr><td>${v.version}</td><td>${v.user_selected.toLocaleString()}</td><td>${v.user_success.toLocaleString()}</td><td class="green">${v.success_rate}%</td><td>${ds[0]}</td><td>${ds[1]}</td><td>${ds[2]}</td><td>${ds[3]}</td></tr>`;
+});
+
+const t3 = document.querySelector('#t3 tbody');
+[...DATA.version_rows].sort((a,b)=>b.auto_rate-a.auto_rate).forEach(v=>{
+  const da = v.daily_auto_rates.map(r=>r!==null?r.toFixed(1)+'%':'-');
+  const valid = v.daily_auto_rates.filter(r=>r!==null);
+  const avg = valid.length? (valid.reduce((s,r)=>s+r,0)/valid.length).toFixed(1)+'%' : '-';
+  t3.innerHTML+=`<tr><td>${v.version}</td><td>${da[0]}</td><td>${da[1]}</td><td>${da[2]}</td><td>${da[3]}</td><td>${avg}</td></tr>`;
+});
+</script>
+</body>
+</html>
